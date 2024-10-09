@@ -1,5 +1,5 @@
 ﻿app:
-  port: 80
+  port: 8091
   debug: false
 database:
   host: localhost

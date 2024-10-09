@@ -7,7 +7,7 @@ import (
 )
 
 func initConfig() {
-    env := viper.GetString("GO_ENV")
+    env := "dev"
     if env == "" {
         env = "dev"
     }
