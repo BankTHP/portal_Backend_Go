@@ -1,0 +1,9 @@
+﻿app:
+  port: 80
+  debug: false
+database:
+  host: localhost
+  port: 5432
+  user: ssodev_portal
+  password: password
+  dbname: pcc-blog
