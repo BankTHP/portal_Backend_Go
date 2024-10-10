@@ -12,4 +12,8 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
     postService := service.NewPostService(db)
     postController := handler.NewPostHandlers(postService)
     PostRoutes(app, postController)
+
+	newsService := service.NewsPService(db)
+    newsController := handler.NewsPHandlers(newsService)
+    NewsRoutes(app, newsController)
 }
