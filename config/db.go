@@ -56,7 +56,7 @@ func InitDB() *gorm.DB {
 
 func autoMigrateEntities(db *gorm.DB) error {
 	models := []interface{}{
-		&entity.Post{},
+		&entity.Post{},&entity.Comment{},&entity.News{},&entity.Notification{},&entity.Release{},
 	}
 
 	for _, model := range models {
