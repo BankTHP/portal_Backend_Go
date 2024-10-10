@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"pccth/portal-blog/internal/entity"
 	"time"
 
 	"github.com/spf13/viper"
@@ -46,6 +47,22 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+	if err := autoMigrateEntities(db); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
 
 	return db
+}
+
+func autoMigrateEntities(db *gorm.DB) error {
+	models := []interface{}{
+		&entity.Post{},
+	}
+
+	for _, model := range models {
+		if err := db.AutoMigrate(model); err != nil {
+			return err
+		}
+	}
+	return nil
 }

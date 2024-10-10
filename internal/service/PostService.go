@@ -22,6 +22,7 @@ func (s *PostService) CreatePost(createRequest *model.CreatePostRequest) error {
     post := &entity.Post{
         PostHeader: createRequest.PostHeader,
         PostBody:   createRequest.PostBody,
+        PostCreateBy: createRequest.PostCreateBy,
     }
     return repository.CreatePost(s.db, post)
 }
