@@ -10,6 +10,10 @@ import (
 
 func RegisterRoutes(app *fiber.App, db *gorm.DB) {
     postService := service.NewPostService(db)
-    postController := handler.NewPostHandlers(postService)
-    PostRoutes(app, postController)
+    postHandler := handler.NewPostHandlers(postService)
+    PostRoutes(app, postHandler )
+
+	releaseNoteService := service.NewReleaseNoteService(db)
+	releaseNoteHandler := handler.NewReleaseNoteHandler(releaseNoteService)
+	ReleaseNoteRoutes(app,releaseNoteHandler)
 }
