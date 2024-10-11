@@ -1,0 +1,39 @@
+package service
+
+import (
+	_ "errors"
+	"pccth/portal-blog/internal/entity"
+	"pccth/portal-blog/internal/model"
+	"pccth/portal-blog/internal/repository"
+
+	"gorm.io/gorm"
+)
+
+type CommentService struct {
+	db *gorm.DB
+}
+
+func NewCommentService(db *gorm.DB) *CommentService {
+	return &CommentService{db: db}
+}
+
+func (s *CommentService) CreateComment(createRequest *model.CreateCommentRequest) error {
+	comment := &entity.Comment{
+		PostID:          createRequest.PostID,
+		CommentBody:     createRequest.CommentBody,
+		CommentCreateBy: createRequest.CommentCreateBy,
+	}
+	return repository.CreateComment(s.db, comment)
+}
+
+func (s *CommentService) GetCommentByID(id uint) (*entity.Comment, error) {
+	return repository.GetCommentByID(s.db, id)
+}
+
+func (s *CommentService) GetCommentByPostID(id uint) ([]entity.Comment, error) {
+	return repository.GetCommentByPostID(s.db, id)
+}
+
+func (s *CommentService) DeleteComment(id uint) error {
+	return repository.DeleteComment(s.db, id)
+}
