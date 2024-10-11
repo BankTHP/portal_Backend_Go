@@ -95,3 +95,21 @@ func (c *CommentHandlers) GetPaginatedComments(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(paginatedResponse)
 }
+
+func (c *CommentHandlers) UpdateComment(ctx *fiber.Ctx) error {
+	id, err := ctx.ParamsInt("id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
+	}
+
+	var updateRequest model.UpdateCommentRequest
+	if err := ctx.BodyParser(&updateRequest); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	if err := c.commentService.UpdateComment(uint(id), &updateRequest); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return ctx.JSON(fiber.Map{"message": "Comment updated successfully"})
+}

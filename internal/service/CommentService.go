@@ -1,7 +1,7 @@
 package service
 
 import (
-	_ "errors"
+	"errors"
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/repository"
@@ -65,4 +65,23 @@ func (s *CommentService) GetPaginatedComments(page, limit, postId int) (model.Pa
 	}
 
 	return response, nil
+}
+
+func (s *CommentService) UpdateComment(id uint, updateRequest *model.UpdateCommentRequest) error {
+	if updateRequest.CommentBody == "" {
+		return errors.New("CommentBody cannot be empty")
+	}
+
+	comment, err := repository.GetCommentByID(s.db, id)
+	if err != nil {
+		return err
+	}
+
+	comment.CommentBody = updateRequest.CommentBody
+
+	if err := repository.UpdateComment(s.db, comment); err != nil {
+		return err
+	}
+
+	return nil
 }

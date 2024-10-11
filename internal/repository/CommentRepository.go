@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"pccth/portal-blog/internal/entity"
 
@@ -30,6 +31,22 @@ func GetCommentByPostID(db *gorm.DB, postID uint) ([]entity.Comment, error) {
 		return nil, err
 	}
 	return comments, nil
+}
+
+func UpdateComment(db *gorm.DB, comment *entity.Comment) error {
+	result := db.Model(comment).Updates(map[string]interface{}{
+		"comment_body": comment.CommentBody,
+	})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no comment found with the given ID or no changes made")
+	}
+
+	return nil
 }
 
 func DeleteComment(db *gorm.DB, id uint) error {
