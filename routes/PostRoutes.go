@@ -15,11 +15,3 @@ func PostRoutes(app *fiber.App, postHandler *handler.PostHandlers) {
 	app.Get("/getAllPostsByPage", postHandler.GetPaginatedPosts)
 
 }
-
-func CommentRoutes(app *fiber.App, commentHandler *handler.CommentHandlers) {
-	app.Post("/createComment", commentHandler.CreateComment)
-	app.Get("/getCommentById/:id", commentHandler.GetCommentByID)
-	app.Get("/getCommentByPostId/:id", commentHandler.GetCommentByPostID)
-	app.Delete("/deleteComment/:id", commentHandler.DeleteComment)
-
-}
