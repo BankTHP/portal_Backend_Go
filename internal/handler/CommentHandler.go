@@ -70,3 +70,28 @@ func (c *CommentHandlers) DeleteComment(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{"message": "Comment deleted successfully"})
 }
+
+func (c *CommentHandlers) GetPaginatedComments(ctx *fiber.Ctx) error {
+	var req model.CommentPaginatedRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	if req.PostID == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PostID must be greater than 0"})
+	}
+	if req.Page == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Page must be greater than 0"})
+	}
+	if req.Limit == 0 || req.Limit > 100 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Limit must be between 1 and 100"})
+	}
+
+	paginatedResponse, err := c.commentService.GetPaginatedComments(int(req.Page), int(req.Limit), int(req.PostID))
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch paginated comments"})
+	}
+
+	return ctx.JSON(paginatedResponse)
+}
