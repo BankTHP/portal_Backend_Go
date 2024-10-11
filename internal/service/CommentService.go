@@ -44,10 +44,13 @@ func (s *CommentService) GetPaginatedComments(page, limit, postId int) (model.Pa
 
 	offset := (page - 1) * limit
 
-	// Count total comments for the specific post
 	s.db.Model(&entity.Comment{}).Where("post_id = ?", postId).Count(&totalComment)
 
-	// Fetch comments for the specific post with pagination
+	totalPages := int(totalComment) / limit
+	if int(totalComment)%limit != 0 {
+		totalPages++
+	}
+
 	result := s.db.Where("post_id = ?", postId).Limit(limit).Offset(offset).Find(&comments)
 	if result.Error != nil {
 		return model.PaginatedResponse{}, result.Error
@@ -56,6 +59,7 @@ func (s *CommentService) GetPaginatedComments(page, limit, postId int) (model.Pa
 	response := model.PaginatedResponse{
 		Data:       comments,
 		TotalCount: int(totalComment),
+		TotalPages: totalPages,
 		Page:       page,
 		PageSize:   limit,
 	}
