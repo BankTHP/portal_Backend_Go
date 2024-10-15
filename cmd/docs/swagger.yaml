@@ -1,0 +1,9 @@
+basePath: /
+host: localhost:8080
+info:
+  contact: {}
+  description: นี่คือ API สำหรับบล็อกพอร์ทัล
+  title: API สำหรับบล็อกพอร์ทัล
+  version: "1.0"
+paths: {}
+swagger: "2.0"

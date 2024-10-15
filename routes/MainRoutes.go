@@ -24,4 +24,6 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	newsService := service.NewsPService(db)
 	newsHandler := handler.NewsPHandlers(newsService)
 	NewsRoutes(app, newsHandler)
+
+	SwaggerRoutes(app)
 }
