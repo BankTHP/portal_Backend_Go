@@ -56,17 +56,7 @@ func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 	return ctx.JSON(post)
 }
 
-// @Summary อัปเดตโพสต์
-// @Description อัปเดตข้อมูลโพสต์ตาม ID ที่ระบุ
-// @Tags posts
-// @Accept json
-// @Produce json
-// @Param id path int true "ID ของโพสต์"
-// @Param updatePostRequest body model.UpdatePostRequest true "ข้อมูลโพสต์ที่จะอัปเดต"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /posts/{id} [put]
+
 func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -85,16 +75,7 @@ func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{"message": "Post updated successfully"})
 }
 
-// @Summary ลบโพสต์
-// @Description ลบโพสต์ตาม ID ที่ระบุ
-// @Tags posts
-// @Accept json
-// @Produce json
-// @Param id path int true "ID ของโพสต์"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /posts/{id} [delete]
+
 func (c *PostHandlers) DeletePost(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -118,17 +99,6 @@ func (c *PostHandlers) GetAllPosts(ctx *fiber.Ctx) error {
 	return ctx.JSON(posts)
 }
 
-// @Summary ดึงข้อมูลโพสต์แบบแบ่งหน้า
-// @Description ดึงข้อมูลโพสต์แบบแบ่งหน้าตามพารามิเตอร์ที่ระบุ
-// @Tags posts
-// @Accept json
-// @Produce json
-// @Param page query int false "หมายเลขหน้า (ค่าเริ่มต้น: 1)"
-// @Param limit query int false "จำนวนรายการต่อหน้า (ค่าเริ่มต้น: 10)"
-// @Success 200 {object} model.PaginatedResponse
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /posts/paginated [get]
 func (c *PostHandlers) GetPaginatedPosts(ctx *fiber.Ctx) error {
 	page, err := strconv.Atoi(ctx.Query("page", "1"))
 	if err != nil || page < 1 {

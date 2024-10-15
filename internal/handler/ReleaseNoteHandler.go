@@ -15,17 +15,7 @@ func NewReleaseNoteHandler(releaseNoteService *service.ReleaseNoteService) *Rele
 	return &ReleaseNoteHandler{releaseNoteService: releaseNoteService }
 }
 
-// CreateReleaseNote godoc
-// @Summary สร้างบันทึกการเผยแพร่ใหม่
-// @Description สร้างบันทึกการเผยแพร่ใหม่ในระบบ
-// @Tags release-notes
-// @Accept json
-// @Produce json
-// @Param request body model.CreateReleaseNoteRequest true "ข้อมูลบันทึกการเผยแพร่"
-// @Success 201 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /release-notes [post]
+
 func (c *ReleaseNoteHandler) CreateReleaseNote(ctx *fiber.Ctx) error {
 	var createReleaseNoteRequest model.CreateReleaseNoteRequest
 	if err := ctx.BodyParser(&createReleaseNoteRequest); err != nil {
