@@ -1,9 +1,11 @@
 ﻿package handler
 
 import (
+	"pccth/portal-blog/internal/model"
+	"pccth/portal-blog/internal/service"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
-    "pccth/portal-blog/internal/service"
-    "pccth/portal-blog/internal/model"
 )
 
 type PostHandlers struct {
@@ -81,3 +83,24 @@ func (c *PostHandlers) GetAllPosts(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(posts)
 }
+
+func (c *PostHandlers) GetPaginatedPosts(ctx *fiber.Ctx) error {
+    page, err := strconv.Atoi(ctx.Query("page", "1"))
+    if err != nil || page < 1 {
+        return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid page number"})
+    }
+
+    limit, err := strconv.Atoi(ctx.Query("limit", "10"))
+    if err != nil || limit < 1 {
+        return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid limit number"})
+    }
+
+    paginatedResponse, err := c.postService.GetPaginatedPosts(page, limit)
+    if err != nil {
+        return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+    }
+
+    return ctx.JSON(paginatedResponse)
+}
+
+

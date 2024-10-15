@@ -1,0 +1,12 @@
+﻿package model
+
+type CreatePostRequest struct {
+    PostHeader   string `json:"postHeader" validate:"required"`
+    PostBody     string `json:"postBody" validate:"required"`
+    PostCreateBy string `json:"postCreateBy" validate:"required"`
+}
+
+type UpdatePostRequest struct {
+    PostHeader   string `json:"postHeader" validate:"required"`
+    PostBody     string `json:"postBody" validate:"required"`
+}

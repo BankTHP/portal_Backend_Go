@@ -1,4 +1,4 @@
-﻿package routes
+package routes
 
 import (
 	"pccth/portal-blog/internal/handler"
@@ -9,11 +9,15 @@ import (
 )
 
 func RegisterRoutes(app *fiber.App, db *gorm.DB) {
-    postService := service.NewPostService(db)
-    postController := handler.NewPostHandlers(postService)
-    PostRoutes(app, postController)
+	postService := service.NewPostService(db)
+	postHandler := handler.NewPostHandlers(postService)
+	PostRoutes(app, postHandler)
 
-	newsService := service.NewsPService(db)
-    newsController := handler.NewsPHandlers(newsService)
-    NewsRoutes(app, newsController)
+	releaseNoteService := service.NewReleaseNoteService(db)
+	releaseNoteHandler := handler.NewReleaseNoteHandler(releaseNoteService)
+	ReleaseNoteRoutes(app, releaseNoteHandler)
+
+	commentService := service.NewCommentService(db)
+	commentController := handler.NewCommentHandlers(commentService)
+	CommentRoutes(app, commentController)
 }
