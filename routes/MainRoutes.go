@@ -20,4 +20,8 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB) {
 	commentService := service.NewCommentService(db)
 	commentController := handler.NewCommentHandlers(commentService)
 	CommentRoutes(app, commentController)
+
+	newsService := service.NewsPService(db)
+	newsHandler := handler.NewsPHandlers(newsService)
+	NewsRoutes(app, newsHandler)
 }
