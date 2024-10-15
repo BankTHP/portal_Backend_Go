@@ -7,11 +7,13 @@ import (
 )
 
 func PostRoutes(app *fiber.App, postHandler *handler.PostHandlers) {
-	app.Post("/createPost", postHandler.CreatePost)
-	app.Get("/getPostById/:id", postHandler.GetPostByID)
-	app.Put("/updatePost/:id", postHandler.UpdatePost)
-	app.Delete("/deletePost/:id", postHandler.DeletePost)
-	app.Get("/getAllPosts", postHandler.GetAllPosts)
-	app.Get("/getAllPostsByPage", postHandler.GetPaginatedPosts)
+
+	api := app.Group("/posts")
+	api.Post("/createPost", postHandler.CreatePost)
+	api.Get("/getPostById/:id", postHandler.GetPostByID)
+	api.Put("/updatePost/:id", postHandler.UpdatePost)
+	api.Delete("/deletePost/:id", postHandler.DeletePost)
+	api.Get("/getAllPosts", postHandler.GetAllPosts)
+	api.Get("/getAllPostsByPage", postHandler.GetPaginatedPosts)
 
 }

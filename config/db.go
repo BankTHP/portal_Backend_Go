@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+
 func InitConfig() {
 	viper.SetConfigName("config.dev")
 	viper.AddConfigPath(".")
@@ -22,6 +23,7 @@ func InitConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file, %s", err)
 	}
+
 }
 
 func InitDB() *gorm.DB {

@@ -7,11 +7,13 @@ import (
 )
 
 func CommentRoutes(app *fiber.App, commentHandler *handler.CommentHandlers) {
-	app.Post("/createComment", commentHandler.CreateComment)
-	app.Get("/getCommentById/:id", commentHandler.GetCommentByID)
-	app.Get("/getCommentByPostId/:id", commentHandler.GetCommentByPostID)
-	app.Delete("/deleteComment/:id", commentHandler.DeleteComment)
-	app.Get("/getAllCommentByPage", commentHandler.GetPaginatedComments)
-	app.Put("/updateComment/:id", commentHandler.UpdateComment)
+
+	api := app.Group("/comment")
+	api.Post("/createComment", commentHandler.CreateComment)
+	api.Get("/getCommentById/:id", commentHandler.GetCommentByID)
+	api.Get("/getCommentByPostId/:id", commentHandler.GetCommentByPostID)
+	api.Delete("/deleteComment/:id", commentHandler.DeleteComment)
+	api.Get("/getAllCommentByPage", commentHandler.GetPaginatedComments)
+	api.Put("/updateComment/:id", commentHandler.UpdateComment)
 
 }

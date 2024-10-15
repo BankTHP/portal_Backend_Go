@@ -7,10 +7,12 @@ import (
 )
 
 func NewsRoutes(app *fiber.App, newsHandler *handler.NewsHandlers) {
-    app.Post("/createNews", newsHandler.CreateNews)            
-    app.Get("/getNewsById/:id", newsHandler.GetNewsByID)       
-    app.Put("/updateNews/:id", newsHandler.UpdateNews)         
-    app.Delete("/deleteNews/:id", newsHandler.DeleteNews)      
-    app.Get("/getAllNews", newsHandler.GetAllNews)           
+
+    api := app.Group("/news")
+    api.Post("/createNews", newsHandler.CreateNews)            
+    api.Get("/getNewsById/:id", newsHandler.GetNewsByID)       
+    api.Put("/updateNews/:id", newsHandler.UpdateNews)         
+    api.Delete("/deleteNews/:id", newsHandler.DeleteNews)      
+    api.Get("/getAllNews", newsHandler.GetAllNews)           
 }
 
