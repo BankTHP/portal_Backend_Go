@@ -6,17 +6,25 @@ import (
 	"pccth/portal-blog/routes"
 	"strconv"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/spf13/viper"
+	_ "pccth/portal-blog/internal/handler"
 	_ "pccth/portal-blog/cmd/docs"
+
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/spf13/viper"
+	"github.com/gofiber/swagger"
 )
 
-//	@title			API สำหรับบล็อกพอร์ทัล
-//	@version		1.0
-//	@description	นี่คือ API สำหรับบล็อกพอร์ทัล
-//	@host			localhost:8080
-//	@BasePath		/
+// @title Portal Blog API
+// @version 1.0
+// @description API สำหรับระบบบล็อกของพอร์ทัล
+// @termsOfService http://swagger.io/terms/
+// @contact.name ทีมสนับสนุน API
+// @contact.email support@portalblog.com
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @BasePath /
 func main() {
 	config.InitConfig()
 
@@ -33,10 +41,14 @@ func main() {
 	app.Use(cors.New())
 	routes.RegisterRoutes(app, db)
 
+	app.Get("/swagger/*", swagger.New(swagger.Config{
+		URL: "/swagger/doc.json",
+		DeepLinking: false,
+	}))
+
 	port := viper.GetInt("app.port")
 	address := ":" + strconv.Itoa(port)
 
-	log.Printf("เซิร์ฟเวอร์กำลังทำงานที่พอร์ต %d\n", port)
 
 	if err := app.Listen(address); err != nil {
 		log.Fatalf("ไม่สามารถเริ่มเซิร์ฟเวอร์ได้: %v", err)

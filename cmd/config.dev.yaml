@@ -1,6 +1,6 @@
 ﻿app:
   port: 8080
-  debug: true
+  debug: false
 database:
   host: localhost
   port: 5432

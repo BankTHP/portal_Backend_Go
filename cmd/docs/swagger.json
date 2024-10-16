@@ -1,12 +1,125 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "นี่คือ API สำหรับบล็อกพอร์ทัล",
-        "title": "API สำหรับบล็อกพอร์ทัล",
-        "contact": {},
+        "title": "Portal Blog API",
+        "description": "API สำหรับระบบบล็อกของพอร์ทัล",
         "version": "1.0"
     },
     "host": "localhost:8080",
     "basePath": "/",
-    "paths": {}
+    "schemes": ["http"],
+    "paths": {
+        "/posts/getAllPosts": {
+            "get": {
+                "summary": "แสดงรายการโพสต์ทั้งหมด",
+                "description": "ดึงข้อมูลโพสต์ทั้งหมดจากระบบ",
+                "tags": ["posts"],
+                "produces": ["application/json"],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Post"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/createPost": {
+            "post": {
+                "summary": "สร้างโพสต์ใหม่",
+                "description": "สร้างโพสต์ใหม่ในระบบ",
+                "tags": ["posts"],
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "post",
+                        "description": "ข้อมูลโพสต์",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreatePostRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Post": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreatePostRequest": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }

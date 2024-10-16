@@ -3,9 +3,7 @@
 import (
 	"fmt"
 	"log"
-	"os"
 	"pccth/portal-blog/internal/entity"
-	"time"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -34,18 +32,17 @@ func InitDB() *gorm.DB {
 		viper.GetString("database.password"),
 		viper.GetString("database.dbname"))
 
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags),
-		logger.Config{
-			SlowThreshold: time.Second,
-			LogLevel:      logger.Info,
-			Colorful:      true,
-		},
-	)
+	var logMode logger.LogLevel
+	if viper.GetBool("app.debug") {
+		logMode = logger.Info
+	} else {
+		logMode = logger.Silent
+	}
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: newLogger,
-	})
+	config := &gorm.Config{
+		Logger: logger.Default.LogMode(logMode),
+	}
+	db, err := gorm.Open(postgres.Open(dsn), config)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}

@@ -18,14 +18,14 @@ func NewPostHandlers(postService *service.PostService) *PostHandlers {
 
 // CreatePost godoc
 // @Summary สร้างโพสต์ใหม่
-// @Description สร้างโพสต์ใหม่จากข้อมูลที่ส่งมา
+// @Description สร้างโพสต์ใหม่ในระบบ
 // @Tags posts
 // @Accept json
 // @Produce json
-// @Param post body model.CreatePostRequest true "ข้อมูลโพสต์ที่จะสร้าง"
-// @Success 201 {object} map[string]interface{}{"message": "Post created successfully"}
-// @Failure 400 {object} map[string]interface{}{"error": "Invalid input"}
-// @Failure 500 {object} map[string]interface{}{"error": "Internal server error"}
+// @Param post body model.CreatePostRequest true "ข้อมูลโพสต์"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
 // @Router /posts/createPost [post]
 func (c *PostHandlers) CreatePost(ctx *fiber.Ctx) error {
 	var createPostRequest model.CreatePostRequest
@@ -40,7 +40,16 @@ func (c *PostHandlers) CreatePost(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Post created successfully"})
 }
 
-
+// GetPostByID godoc
+// @Summary ดึงข้อมูลโพสต์โดย ID
+// @Description ดึงข้อมูลโพสต์โดย ID
+// @Tags posts
+// @Produce json
+// @Param id path string true "ID ของโพสต์"
+// @Success 200 {object} model.Post
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /posts/{id} [get]
 func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	println(id)
@@ -56,7 +65,18 @@ func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 	return ctx.JSON(post)
 }
 
-
+// UpdatePost godoc
+// @Summary อั���เดตโพสต์
+// @Description อัปเดตโพสต์ในระบบ
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Param id path string true "ID ของโพสต์"
+// @Param post body model.UpdatePostRequest true "ข้อมูลโพสต์"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /posts/{id} [patch]
 func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -75,7 +95,16 @@ func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{"message": "Post updated successfully"})
 }
 
-
+// DeletePost godoc
+// @Summary ลบโพสต์
+// @Description ลบโพสต์ในระบบ
+// @Tags posts
+// @Produce json
+// @Param id path string true "ID ของโพสต์"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /posts/{id} [delete]
 func (c *PostHandlers) DeletePost(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
@@ -89,7 +118,15 @@ func (c *PostHandlers) DeletePost(ctx *fiber.Ctx) error {
 	return ctx.JSON(map[string]interface{}{"message": "Post deleted successfully"})
 }
 
-
+// GetAllPosts godoc
+// @Summary แสดงรายการโพสต์ทั้งหมด
+// @Description ดึงข้อมูลโพสต์ทั้งหมดจากระบบ
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Post
+// @Failure 500 {object} map[string]interface{}
+// @Router /posts/getAllPosts [get]
 func (c *PostHandlers) GetAllPosts(ctx *fiber.Ctx) error {
 	posts, err := c.postService.GetAllPosts()
 	if err != nil {
@@ -117,3 +154,4 @@ func (c *PostHandlers) GetPaginatedPosts(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(paginatedResponse)
 }
+
