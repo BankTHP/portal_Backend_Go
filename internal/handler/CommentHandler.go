@@ -88,7 +88,7 @@ func (c *CommentHandlers) GetPaginatedComments(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Page must be greater than 0"})
 	}
 	if req.Size == 0 || req.Size > 100 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Limit must be between 1 and 100"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Size must be between 1 and 100"})
 	}
 
 	paginatedResponse, err := c.commentService.GetPaginatedComments(int(req.Page), int(req.Size), int(req.PostID))

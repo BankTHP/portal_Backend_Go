@@ -1,0 +1,14 @@
+package entity
+
+type Users struct {
+    UserId     string   `gorm:"primaryKey;autoIncrement" json:"id"`
+    Name       string `gorm:"type:varchar(255)" json:"name"`
+    Username   string `gorm:"type:varchar(255);uniqueIndex;not null" json:"username"`
+    GivenName  string `gorm:"type:varchar(255)" json:"given_name"`
+    FamilyName string `gorm:"type:varchar(255)" json:"family_name"`
+    Email      string `gorm:"type:varchar(255);uniqueIndex;not null" json:"email"`
+}
+
+func (Users) TableName() string {
+    return "users"
+}
