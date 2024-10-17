@@ -8,6 +8,7 @@ type Post struct {
     PostBody       string         `gorm:"type:text;not null" json:"postBody"`                        
     PostCreateDate time.Time      `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"postCreateDate"`  
     PostCreateBy   string         `gorm:"type:varchar(100);not null" json:"postCreateBy"`
+    UserID         uint           `gorm:"not null" json:"userId"`
     
     Comments       []Comment      `gorm:"foreignKey:PostID;constraint:OnDelete:CASCADE" json:"comments,omitempty"`
 }
@@ -15,4 +16,5 @@ type Post struct {
 func (Post) TableName() string {
 	return "post"
 }
+
 
