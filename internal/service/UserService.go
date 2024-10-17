@@ -56,18 +56,16 @@ func (s *UserService) GetUserInfoByUserId(userId string) (*entity.Users, error) 
 	return repository.GetUserByUserId(s.db, userId)
 }
 
-func (s *UserService) GetUserNameInfoByUserId(userId string) (*entity.Users, error) {
-	return repository.GetUserNameInfoByUserId(s.db, userId)
-}
-
-func (s *UserService) CheckUser(userInfo *model.CreateUserRequest) error {
+func (s *UserService) CheckUser(userInfo *model.CreateUserRequest) (bool, error) {
 	_, err := repository.GetUserByUserId(s.db, userInfo.UserId)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return s.CreateUser(userInfo)
+			if err := s.CreateUser(userInfo); err != nil {
+				return false, err
+			}
+			return false, nil
 		}
-		return err
+		return false, err
 	}
-
-	return nil
+	return true, nil
 }

@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	_ "pccth/portal-blog/internal/handler"
-	_ "pccth/portal-blog/cmd/docs"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

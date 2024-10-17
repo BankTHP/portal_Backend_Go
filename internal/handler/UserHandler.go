@@ -53,27 +53,22 @@ func (h *UserHandlers) GetUserInfoByUserId(ctx *fiber.Ctx) error {
 	return ctx.JSON(user)
 }
 
-func (h *UserHandlers) GetUserNameInfoByUserId(ctx *fiber.Ctx) error {
-	userId := ctx.Params("userId")
-
-	user, err := h.userService.GetUserNameInfoByUserId(userId)
-	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
-	}
-
-	return ctx.JSON(user)
-}
 
 
 func (h *UserHandlers) CheckUser(ctx *fiber.Ctx) error {
 	var userInfo model.CreateUserRequest
 	if err := ctx.BodyParser(&userInfo); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ข้อมูลไม่ถูกต้อง"})
 	}
 
-	if err := h.userService.CheckUser(&userInfo); err != nil {
+	exists, err := h.userService.CheckUser(&userInfo)
+	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User checked successfully"})
+	if exists {
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "ผู้ใช้มีอยู่แล้ว"})
+	} else {
+		return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "สร้างผู้ใช้สำเร็จ"})
+	}
 }

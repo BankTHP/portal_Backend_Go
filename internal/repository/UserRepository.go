@@ -25,12 +25,3 @@ func GetUserByUserId(db *gorm.DB, userId string) (*entity.Users, error) {
 func UpdateUser(db *gorm.DB, user *entity.Users) error {
 	return db.Save(user).Error
 }
-
-func GetUserNameInfoByUserId(db *gorm.DB, userId string) (*entity.Users, error) {
-	var user entity.Users
-	err := db.Select("id", "name", "username", "given_name", "family_name").Where("user_id = ?", userId).First(&user).Error
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
