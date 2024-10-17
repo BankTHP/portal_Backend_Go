@@ -14,6 +14,7 @@ func CommentRoutes(app *fiber.App, commentHandler *handler.CommentHandlers) {
 	api.Get("/getCommentByPostId/:id", commentHandler.GetCommentByPostID)
 	api.Delete("/deleteComment/:id", commentHandler.DeleteComment)
 	api.Get("/getAllCommentByPostIsByPage", commentHandler.GetPaginatedComments)
+	api.Get("/getCommentByUserId", commentHandler.GetPaginatedCommentsByUserId)
 	api.Put("/updateComment/:id", commentHandler.UpdateComment)
 
 }
