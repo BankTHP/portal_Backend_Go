@@ -7,7 +7,11 @@ import (
 )
 
 func ReleaseNoteRoutes(app *fiber.App, releaseNoteHandler *handler.ReleaseNoteHandler) {
-    app.Post("/createReleaseNote", releaseNoteHandler.CreateReleaseNote)             
+	api := app.Group("/releaseNote")
+	api.Post("/createReleaseNote", releaseNoteHandler.CreateReleaseNote)
+	api.Get("/getReleaseNoteById/:id", releaseNoteHandler.GetReleaseByID)
+	api.Put("/updateReleaseNote/:id", releaseNoteHandler.UpdateRelease)
+	api.Delete("/deleteReleaseNote/:id", releaseNoteHandler.DeleteRelease)
+	api.Get("/getAllReleaseNotes", releaseNoteHandler.GetAllRelease)
 
 }
-
