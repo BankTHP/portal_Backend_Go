@@ -49,27 +49,22 @@ func (s *PostService) UpdatePost(id uint, updateRequest *model.UpdatePostRequest
 }
 
 func (s *PostService) DeletePost(id uint) error {
-    tx := s.db.Begin()
-
     var post entity.Post
-    if err := tx.Where("id = ?", id).First(&post).Error; err != nil {
-        tx.Rollback()
+
+    if err := s.db.Where("id = ?", id).First(&post).Error; err != nil {
         return errors.New("post not found")
     }
 
-    if err := tx.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
-        tx.Rollback()
+    if err := s.db.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
         return errors.New("failed to delete comments")
     }
 
-    if err := tx.Delete(&post).Error; err != nil {
-        tx.Rollback()
+    if err := s.db.Delete(&post).Error; err != nil {
         return errors.New("failed to delete post")
     }
 
-    return tx.Commit().Error
+    return nil
 }
-
 
 func (s *PostService) GetAllPosts() ([]entity.Post, error) {
     return repository.GetAllPosts(s.db)

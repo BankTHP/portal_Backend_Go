@@ -9,7 +9,7 @@ type Post struct {
     PostCreateDate time.Time      `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"postCreateDate"`  
     PostCreateBy   string         `gorm:"type:varchar(100);not null" json:"postCreateBy"`
     
-    Comments       []Comment      `gorm:"foreignKey:PostID;constraint:OnDelete:CASCADE" json:"comments"`
+    Comments       []Comment      `gorm:"foreignKey:PostID;constraint:OnDelete:CASCADE" json:"comments,omitempty"`
 }
 
 func (Post) TableName() string {
