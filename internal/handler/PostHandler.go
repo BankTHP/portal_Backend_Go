@@ -3,7 +3,6 @@
 import (
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/service"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -66,7 +65,7 @@ func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 }
 
 // UpdatePost godoc
-// @Summary อั���เดตโพสต์
+// @Summary อัพเดตโพสต์
 // @Description อัปเดตโพสต์ในระบบ
 // @Tags posts
 // @Accept json
@@ -136,22 +135,35 @@ func (c *PostHandlers) GetAllPosts(ctx *fiber.Ctx) error {
 	return ctx.JSON(posts)
 }
 
+// GetPaginatedPosts godoc
+// @Summary แสดงรายการโพสต์แบบแบ่งหน้า
+// @Description ดึงข้อมูลโพสต์แบบแบ่งหน้าจากระบบ
+// @Tags posts
+// @Accept json
+// @Produce json
+// @Param request body model.PostPaginatedRequest true "ข้อมูลการแบ่งหน้า"
+// @Success 200 {object} model.PaginatedResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /posts/getPaginatedPosts [post]
 func (c *PostHandlers) GetPaginatedPosts(ctx *fiber.Ctx) error {
-	page, err := strconv.Atoi(ctx.Query("page", "1"))
-	if err != nil || page < 1 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{"error": "Invalid page number"})
+	var request model.PostPaginatedRequest
+	if err := ctx.BodyParser(&request); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
 	}
 
-	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
-	if err != nil || limit < 1 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid limit number"})
+	if request.Page < 1 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid page number"})
 	}
 
-	paginatedResponse, err := c.postService.GetPaginatedPosts(page, limit)
+	if request.Size < 1 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid size number"})
+	}
+
+	paginatedResponse, err := c.postService.GetPaginatedPosts(int(request.Page), int(request.Size))
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return ctx.JSON(paginatedResponse)
 }
-
