@@ -18,6 +18,11 @@ func NewCommentService(db *gorm.DB) *CommentService {
 }
 
 func (s *CommentService) CreateComment(createRequest *model.CreateCommentRequest) error {
+	_, err := repository.GetPostByID(s.db, createRequest.PostID)
+	if err != nil {
+		return errors.New("post not found")
+	}
+
 	comment := &entity.Comment{
 		PostID:          createRequest.PostID,
 		CommentBody:     createRequest.CommentBody,

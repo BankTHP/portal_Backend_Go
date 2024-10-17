@@ -105,16 +105,16 @@ func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 // @Failure 500 {object} map[string]interface{}
 // @Router /posts/{id} [delete]
 func (c *PostHandlers) DeletePost(ctx *fiber.Ctx) error {
-	id, err := ctx.ParamsInt("id")
-	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{"error": "Invalid ID"})
-	}
+    id, err := ctx.ParamsInt("id")
+    if err != nil {
+        return ctx.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{"error": "Invalid ID"})
+    }
 
-	if err := c.postService.DeletePost(uint(id)); err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{"error": err.Error()})
-	}
+    if err := c.postService.DeletePost(uint(id)); err != nil {
+        return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{"error": err.Error()})
+    }
 
-	return ctx.JSON(map[string]interface{}{"message": "Post deleted successfully"})
+    return ctx.JSON(map[string]interface{}{"message": "Post and related comments deleted successfully"})
 }
 
 // GetAllPosts godoc

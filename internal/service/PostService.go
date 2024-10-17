@@ -4,7 +4,7 @@ import (
 	"errors"
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
-    "pccth/portal-blog/internal/repository"
+	"pccth/portal-blog/internal/repository"
 
 	"gorm.io/gorm"
 )
@@ -49,7 +49,21 @@ func (s *PostService) UpdatePost(id uint, updateRequest *model.UpdatePostRequest
 }
 
 func (s *PostService) DeletePost(id uint) error {
-    return repository.DeletePost(s.db, id)
+    var post entity.Post
+
+    if err := s.db.Where("id = ?", id).First(&post).Error; err != nil {
+        return errors.New("post not found")
+    }
+
+    if err := s.db.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
+        return errors.New("failed to delete comments")
+    }
+
+    if err := s.db.Delete(&post).Error; err != nil {
+        return errors.New("failed to delete post")
+    }
+
+    return nil
 }
 
 func (s *PostService) GetAllPosts() ([]entity.Post, error) {
