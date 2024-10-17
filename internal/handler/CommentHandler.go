@@ -125,7 +125,7 @@ func (c *CommentHandlers) GetPaginatedCommentsByUserId(ctx *fiber.Ctx) error {
 	}
 
 	if req.CommentCreateBy == "" {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PostID must be greater than 0"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "user id must be greater than 0"})
 	}
 	if req.Page == 0 {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Page must be greater than 0"})

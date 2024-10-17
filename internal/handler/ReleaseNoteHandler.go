@@ -37,7 +37,7 @@ func (c *ReleaseNoteHandler) GetReleaseByID(ctx *fiber.Ctx) error {
 
 	release, err := c.releaseNoteService.GetReleaseByID(uint(id))
 	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Post not found"})
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Release note not found"})
 	}
 
 	return ctx.JSON(release)
