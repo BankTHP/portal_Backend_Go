@@ -52,3 +52,14 @@ func UpdateComment(db *gorm.DB, comment *entity.Comment) error {
 func DeleteComment(db *gorm.DB, id uint) error {
 	return db.Delete(&entity.Comment{}, id).Error
 }
+
+func DeleteCommentByPostId(db *gorm.DB, postID uint) error {
+	result := db.Where("post_id = ?", postID).Delete(&entity.Comment{})
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("no comments found for the given post ID")
+	}
+	return nil
+}

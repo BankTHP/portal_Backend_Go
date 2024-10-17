@@ -22,12 +22,14 @@ func (c *CommentHandlers) CreateComment(ctx *fiber.Ctx) error {
 	}
 
 	if err := c.commentService.CreateComment(&createCommentRequest); err != nil {
+		if err.Error() == "post not found" {
+			return ctx.Status(fiber.StatusNotFound).JSON(map[string]interface{}{"error": err.Error()})
+		}
 		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{"error": err.Error()})
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(map[string]interface{}{"message": "Comment created successfully"})
 }
-
 
 func (c *CommentHandlers) GetCommentByID(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
@@ -71,7 +73,6 @@ func (c *CommentHandlers) DeleteComment(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(fiber.Map{"message": "Comment deleted successfully"})
 }
-
 
 func (c *CommentHandlers) GetPaginatedComments(ctx *fiber.Ctx) error {
 	var req model.CommentPaginatedRequest
