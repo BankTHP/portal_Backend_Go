@@ -124,7 +124,7 @@ func (c *CommentHandlers) GetPaginatedCommentsByUserId(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	if req.UserId == 0 {
+	if req.CommentCreateBy == "" {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PostID must be greater than 0"})
 	}
 	if req.Page == 0 {
@@ -134,7 +134,7 @@ func (c *CommentHandlers) GetPaginatedCommentsByUserId(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Size must be between 1 and 100"})
 	}
 
-	paginatedResponse, err := c.commentService.GetPaginatedComments(int(req.Page), int(req.Size), int(req.UserId))
+	paginatedResponse, err := c.commentService.GetPaginatedCommentsByUserId(int(req.Page), int(req.Size), req.CommentCreateBy)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch paginated comments"})
 	}

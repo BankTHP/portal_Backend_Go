@@ -7,7 +7,7 @@ type CommentPaginatedRequest struct {
 }
 
 type CommentByUserIdPaginatedRequest struct {
-	UserId uint `json:"userID"`
-	Page   uint `json:"page"`
-	Size   uint `json:"size"`
+	CommentCreateBy string `json:"commentCreateBy"`
+	Page            uint   `json:"page"`
+	Size            uint   `json:"size"`
 }

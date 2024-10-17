@@ -91,20 +91,20 @@ func (s *CommentService) UpdateComment(id uint, updateRequest *model.UpdateComme
 	return nil
 }
 
-func (s *CommentService) GetPaginatedCommentsByUserId(page, limit int, userID string) (model.PaginatedResponse, error) {
+func (s *CommentService) GetPaginatedCommentsByUserId(page, limit int, CommentCreateBy string) (model.PaginatedResponse, error) {
 	var comments []entity.Comment
 	var totalComment int64
 
 	offset := (page - 1) * limit
 
-	s.db.Model(&entity.Comment{}).Where("comment_create_by = ?", userID).Count(&totalComment)
+	s.db.Model(&entity.Comment{}).Where("comment_create_by = ?", CommentCreateBy).Count(&totalComment)
 
 	totalPages := int(totalComment) / limit
 	if int(totalComment)%limit != 0 {
 		totalPages++
 	}
 
-	result := s.db.Where("comment_create_by = ?", userID).Limit(limit).Offset(offset).Find(&comments)
+	result := s.db.Where("comment_create_by = ?", CommentCreateBy).Limit(limit).Offset(offset).Find(&comments)
 	if result.Error != nil {
 		return model.PaginatedResponse{}, result.Error
 	}
