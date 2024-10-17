@@ -15,5 +15,6 @@ func PostRoutes(app *fiber.App, postHandler *handler.PostHandlers) {
 	api.Delete("/deletePost/:id", postHandler.DeletePost)
 	api.Get("/getAllPosts", postHandler.GetAllPosts)
 	api.Get("/getPaginatedPosts", postHandler.GetPaginatedPosts)
+	api.Get("/getAllPostByUserId", postHandler.GetPaginatedPostsByUserId)
 
 }

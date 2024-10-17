@@ -92,3 +92,32 @@ func (s *PostService) GetPaginatedPosts(page, limit int) (model.PaginatedRespons
 
 	return response, nil
 }
+
+func (s *PostService) GetPaginatedPostsByUserId(page, limit int, PostCreateBy string) (model.PaginatedResponse, error) {
+	var posts []entity.Post
+	var totalPost int64
+
+	offset := (page - 1) * limit
+
+	s.db.Model(&entity.Post{}).Where("post_create_by = ?", PostCreateBy).Count(&totalPost)
+
+	totalPages := int(totalPost) / limit
+	if int(totalPost)%limit != 0 {
+		totalPages++
+	}
+
+	result := s.db.Where("post_create_by = ?", PostCreateBy).Limit(limit).Offset(offset).Find(&posts)
+	if result.Error != nil {
+		return model.PaginatedResponse{}, result.Error
+	}
+
+	response := model.PaginatedResponse{
+		Data:       posts,
+		TotalCount: int(totalPost),
+		TotalPages: totalPages,
+		Page:       page,
+		PageSize:   limit,
+	}
+
+	return response, nil
+}

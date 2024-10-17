@@ -167,3 +167,28 @@ func (c *PostHandlers) GetPaginatedPosts(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(paginatedResponse)
 }
+
+func (c *PostHandlers) GetPaginatedPostsByUserId(ctx *fiber.Ctx) error {
+	var req model.PostByUserIdPaginatedRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	if req.PostCreateBy == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PostID must be greater than 0"})
+	}
+	if req.Page == 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Page must be greater than 0"})
+	}
+	if req.Size == 0 || req.Size > 100 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Size must be between 1 and 100"})
+	}
+
+	paginatedResponse, err := c.postService.GetPaginatedPostsByUserId(int(req.Page), int(req.Size), req.PostCreateBy)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch paginated comments"})
+	}
+
+	return ctx.JSON(paginatedResponse)
+}
