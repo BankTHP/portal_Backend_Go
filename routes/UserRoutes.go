@@ -9,7 +9,7 @@ import (
 func UserRoutes(app *fiber.App, userHandler *handler.UserHandlers) {
 	api := app.Group("/users")
 	api.Post("/create", userHandler.CreateUser)
-	api.Put("/update/:userId", userHandler.UpdateUserInfo)
+	api.Put("/update", userHandler.UpdateUserInfo)
 	api.Get("/info/:userId", userHandler.GetUserInfoByUserId)
 	api.Post("/check", userHandler.CheckUser)
 }

@@ -29,17 +29,16 @@ func (h *UserHandlers) CreateUser(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandlers) UpdateUserInfo(ctx *fiber.Ctx) error {
-	userId := ctx.Params("userId")
 	var updateUserRequest model.UpdateUserRequest
 	if err := ctx.BodyParser(&updateUserRequest); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ข้อมูลไม่ถูกต้อง"})
 	}
 
-	if err := h.userService.UpdateUserInfo(userId, &updateUserRequest); err != nil {
+	if err := h.userService.UpdateUserInfo(&updateUserRequest); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.JSON(fiber.Map{"message": "User updated successfully"})
+	return ctx.JSON(fiber.Map{"message": "อัปเดตข้อมูลผู้ใช้สำเร็จ"})
 }
 
 func (h *UserHandlers) GetUserInfoByUserId(ctx *fiber.Ctx) error {

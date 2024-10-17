@@ -1,7 +1,7 @@
 package entity
 
 type Users struct {
-    UserId     string `gorm:"primaryKey" json:"userId"`
+    UserId     string `gorm:"primaryKey" json:"user_id"`
     Name       string `gorm:"type:varchar(255)" json:"name"`
     Username   string `gorm:"type:varchar(255);uniqueIndex;not null" json:"username"`
     GivenName  string `gorm:"type:varchar(255)" json:"given_name"`

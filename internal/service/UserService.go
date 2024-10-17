@@ -4,6 +4,7 @@ import (
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/repository"
+
 	"gorm.io/gorm"
 )
 
@@ -27,12 +28,11 @@ func (s *UserService) CreateUser(createRequest *model.CreateUserRequest) error {
 	return repository.CreateUser(s.db, user)
 }
 
-func (s *UserService) UpdateUserInfo(userId string, updateRequest *model.UpdateUserRequest) error {
-	user, err := repository.GetUserByUserId(s.db, userId)
+func (s *UserService) UpdateUserInfo(updateRequest *model.UpdateUserRequest) error {
+	user, err := repository.GetUserByUserId(s.db, updateRequest.UserId)
 	if err != nil {
 		return err
 	}
-
 	if updateRequest.Name != "" {
 		user.Name = updateRequest.Name
 	}
