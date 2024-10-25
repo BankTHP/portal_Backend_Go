@@ -1,7 +1,6 @@
 ﻿package repository
 
 import (
-	"fmt"
 	"pccth/portal-blog/internal/entity"
 
 	"gorm.io/gorm"
@@ -12,7 +11,6 @@ func CreatePost(db *gorm.DB, post *entity.Post) error {
     if result.Error != nil {
         return result.Error
     }
-    fmt.Println("Post created successfully! ID:", post.ID)
     return nil
 }
 

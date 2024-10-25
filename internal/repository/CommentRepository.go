@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 	"pccth/portal-blog/internal/entity"
 
 	"gorm.io/gorm"
@@ -13,7 +12,6 @@ func CreateComment(db *gorm.DB, comment *entity.Comment) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	fmt.Println("Comment created successfully! ID:", comment.ID)
 	return nil
 }
 

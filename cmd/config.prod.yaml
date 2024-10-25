@@ -7,3 +7,27 @@ database:
   user: ssodev_portal
   password: password
   dbname: pcc-blog
+
+jwt:
+  issuer-uri: http://ssoweb.pccth.com:8081/realms/sso-realm
+  token-uri: /protocol/openid-connect/token
+  jwk-set-uri: /protocol/openid-connect/certs
+  public-key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0SaWRNA4W+HombPqrbK
+    LJf9iVgQiHdHtlmChPT2OzcoomzS+iOOJ0yHHGHWoY/2+s4APw53b6bJhEnXHq8a
+    SjWWH34LjdJru1NiUHt9lf4HXCvqwO+wt40rJG7twqmmiQlfBiMF839bqSXN5M9
+    91Qnw8ou51gc44LL73sqX28XqTawPekqiiaRKKxRQrNV5WNWeDkznMIJpSPms1N
+    hu7L/LCpjNTzSyjre7RplMJZ431EoVd2Dd9y6qtJvWYXtosLYn7/Gm5TVcIcTK8
+    9oMPhk3mO0b/izrGQSRhjrdSWocxuw2b+eQPQblZYxKGFcJcWksgjwk5jEQfwSe
+    dEF4NEQIDAQAB
+    -----END PUBLIC KEY-----
+    
+auth:
+  converter:
+    resource-id: sso-client-api
+    principle-attribute: preferred_username
+
+
+keycloak:
+  clientId: sso-client-api

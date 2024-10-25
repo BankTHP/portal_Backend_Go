@@ -7,11 +7,12 @@ import (
 	"strconv"
 
 	_ "pccth/portal-blog/internal/handler"
+	"pccth/portal-blog/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/spf13/viper"
 	"github.com/gofiber/swagger"
+	"github.com/spf13/viper"
 )
 
 // @title Portal Blog API
@@ -26,9 +27,11 @@ import (
 // @BasePath /
 func main() {
 	config.InitConfig()
-
+	if err := config.InitPublicKey(); err != nil {
+		log.Fatalf("ไม่สามารถเริ่มต้นคีย์สาธารณะได้: %v", err)
+	}
 	db := config.InitDB()
-
+	authMiddleware := middleware.NewAuthMiddleware(config.GetPublicKey())
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -38,7 +41,7 @@ func main() {
 	})
 
 	app.Use(cors.New())
-	routes.RegisterRoutes(app, db)
+	routes.RegisterRoutes(app, db, authMiddleware)
 
 	app.Get("/swagger/*", swagger.New(swagger.Config{
 		URL: "/swagger/doc.json",

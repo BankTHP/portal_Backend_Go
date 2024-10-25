@@ -33,7 +33,6 @@ func (c *CommentHandlers) CreateComment(ctx *fiber.Ctx) error {
 
 func (c *CommentHandlers) GetCommentByID(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
-	println(id)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
 	}
@@ -48,7 +47,6 @@ func (c *CommentHandlers) GetCommentByID(ctx *fiber.Ctx) error {
 
 func (c *CommentHandlers) GetCommentByPostID(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
-	println(id)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
 	}

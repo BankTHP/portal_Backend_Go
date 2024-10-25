@@ -51,7 +51,6 @@ func (c *PostHandlers) CreatePost(ctx *fiber.Ctx) error {
 // @Router /posts/{id} [get]
 func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
-	println(id)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
 	}
