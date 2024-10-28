@@ -29,14 +29,16 @@ func NewPostHandlers(postService *service.PostService) *PostHandlers {
 func (c *PostHandlers) CreatePost(ctx *fiber.Ctx) error {
 	var createPostRequest model.CreatePostRequest
 	if err := ctx.BodyParser(&createPostRequest); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_INPUT", "ข้อมูลไม่ถูกต้อง"))
 	}
 
 	if err := c.postService.CreatePost(&createPostRequest); err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("CREATE_POST_ERROR", err.Error()))
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Post created successfully"})
+	return ctx.Status(fiber.StatusCreated).JSON(model.NewSuccessResponse(map[string]string{
+		"message": "สร้างโพสต์สำเร็จ",
+	}))
 }
 
 // GetPostByID godoc
@@ -52,15 +54,15 @@ func (c *PostHandlers) CreatePost(ctx *fiber.Ctx) error {
 func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_ID", "รหัสไม่ถูกต้อง"))
 	}
 
 	post, err := c.postService.GetPostByID(uint(id))
 	if err != nil {
-		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Post not found"})
+		return ctx.Status(fiber.StatusNotFound).JSON(model.NewErrorResponse("POST_NOT_FOUND", "ไม่พบโพสต์"))
 	}
 
-	return ctx.JSON(post)
+	return ctx.JSON(model.NewSuccessResponse(post))
 }
 
 // UpdatePost godoc
@@ -78,19 +80,21 @@ func (c *PostHandlers) GetPostByID(ctx *fiber.Ctx) error {
 func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 	id, err := ctx.ParamsInt("id")
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_ID", "รหัสไม่ถูกต้อง"))
 	}
 
 	var updateRequest model.UpdatePostRequest
 	if err := ctx.BodyParser(&updateRequest); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_INPUT", "ข้อมูลไม่ถูกต้อง"))
 	}
 
 	if err := c.postService.UpdatePost(uint(id), &updateRequest); err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("UPDATE_POST_ERROR", err.Error()))
 	}
 
-	return ctx.JSON(fiber.Map{"message": "Post updated successfully"})
+	return ctx.JSON(model.NewSuccessResponse(map[string]string{
+		"message": "อัปเดตโพสต์สำเร็จ",
+	}))
 }
 
 // DeletePost godoc
@@ -104,16 +108,18 @@ func (c *PostHandlers) UpdatePost(ctx *fiber.Ctx) error {
 // @Failure 500 {object} map[string]interface{}
 // @Router /posts/{id} [delete]
 func (c *PostHandlers) DeletePost(ctx *fiber.Ctx) error {
-    id, err := ctx.ParamsInt("id")
-    if err != nil {
-        return ctx.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{"error": "Invalid ID"})
-    }
+	id, err := ctx.ParamsInt("id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_ID", "รหัสไม่ถูกต้อง"))
+	}
 
-    if err := c.postService.DeletePost(uint(id)); err != nil {
-        return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{"error": err.Error()})
-    }
+	if err := c.postService.DeletePost(uint(id)); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("DELETE_POST_ERROR", err.Error()))
+	}
 
-    return ctx.JSON(map[string]interface{}{"message": "Post and related comments deleted successfully"})
+	return ctx.JSON(model.NewSuccessResponse(map[string]string{
+		"message": "ลบโพสต์และความคิดเห็นที่เกี่ยวข้องสำเร็จ",
+	}))
 }
 
 // GetAllPosts godoc
@@ -128,10 +134,10 @@ func (c *PostHandlers) DeletePost(ctx *fiber.Ctx) error {
 func (c *PostHandlers) GetAllPosts(ctx *fiber.Ctx) error {
 	posts, err := c.postService.GetAllPosts()
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{"error": err.Error()})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("FETCH_POSTS_ERROR", err.Error()))
 	}
 
-	return ctx.JSON(posts)
+	return ctx.JSON(model.NewSuccessResponse(posts))
 }
 
 // GetPaginatedPosts godoc
@@ -148,46 +154,45 @@ func (c *PostHandlers) GetAllPosts(ctx *fiber.Ctx) error {
 func (c *PostHandlers) GetPaginatedPosts(ctx *fiber.Ctx) error {
 	var request model.PostPaginatedRequest
 	if err := ctx.BodyParser(&request); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_INPUT", "ข้อมูลไม่ถูกต้อง"))
 	}
 
 	if request.Page < 1 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid page number"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_PAGE", "หน้าต้องมากกว่า 0"))
 	}
 
 	if request.Size < 1 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid size number"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_SIZE", "ขนาดต้องมากกว่า 0"))
 	}
 
 	paginatedResponse, err := c.postService.GetPaginatedPosts(int(request.Page), int(request.Size))
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("FETCH_PAGINATED_POSTS_ERROR", err.Error()))
 	}
 
-	return ctx.JSON(paginatedResponse)
+	return ctx.JSON(model.NewSuccessResponse(paginatedResponse))
 }
 
 func (c *PostHandlers) GetPaginatedPostsByUserId(ctx *fiber.Ctx) error {
 	var req model.PostByUserIdPaginatedRequest
-
 	if err := ctx.BodyParser(&req); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_INPUT", "ข้อมูลไม่ถูกต้อง"))
 	}
 
 	if req.PostCreateBy == "" {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "PostID must be greater than 0"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_USER_ID", "รหัสผู้ใช้ไม่ถูกต้อง"))
 	}
 	if req.Page == 0 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Page must be greater than 0"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_PAGE", "หน้าต้องมากกว่า 0"))
 	}
 	if req.Size == 0 || req.Size > 100 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Size must be between 1 and 100"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_SIZE", "ขนาดต้องอยู่ระหว่าง 1 ถึง 100"))
 	}
 
 	paginatedResponse, err := c.postService.GetPaginatedPostsByUserId(int(req.Page), int(req.Size), req.PostCreateBy)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch paginated comments"})
+		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("FETCH_USER_POSTS_ERROR", "ไม่สามารถดึงข้อมูลโพสต์ของผู้ใช้ได้"))
 	}
 
-	return ctx.JSON(paginatedResponse)
+	return ctx.JSON(model.NewSuccessResponse(paginatedResponse))
 }

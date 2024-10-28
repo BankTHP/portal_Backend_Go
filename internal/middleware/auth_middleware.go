@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"pccth/portal-blog/internal/model"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
@@ -22,26 +23,29 @@ func (am *AuthMiddleware) HasRole(roles ...string) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		token := ctx.Get("Authorization")
 		if token == "" {
-			return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-					"error": "ไม่พบ token การยืนยันตัวตน",
-				})
+			return ctx.Status(fiber.StatusUnauthorized).JSON(model.NewErrorResponse(
+				"UNAUTHORIZED",
+				"ไม่พบ token การยืนยันตัวตน",
+			))
 		}
 
 		for _, role := range roles {
 			hasRole, err := am.CheckUserRole(token, role)
 			if err != nil {
-				return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-					"error": "การตรวจสอบ token ล้มเหลว: " + err.Error(),
-				})
+				return ctx.Status(fiber.StatusUnauthorized).JSON(model.NewErrorResponse(
+					"TOKEN_VALIDATION_ERROR",
+					"การตรวจสอบ token ล้มเหลว: " + err.Error(),
+				))
 			}
 			if hasRole {
 				return ctx.Next()
 			}
 		}
 
-		return ctx.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": "ไม่มีสิทธิ์เข้าถึง",
-		})
+		return ctx.Status(fiber.StatusForbidden).JSON(model.NewErrorResponse(
+			"FORBIDDEN",
+			"ไม่มีสิทธิ์เข้าถึง",
+		))
 	}
 }
 
