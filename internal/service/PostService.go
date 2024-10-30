@@ -28,7 +28,18 @@ func (s *PostService) CreatePost(createRequest *model.CreatePostRequest) error {
 }
 
 func (s *PostService) GetPostByID(id uint) (*entity.Post, error) {
-    return repository.GetPostByID(s.db, id)
+    post, err := repository.GetPostByID(s.db, id)
+    if err != nil {
+        return nil, err
+    }
+    
+    user, err := repository.GetUserByUserId(s.db, post.PostCreateBy)
+    if err != nil {
+        return nil, err
+    }
+    
+    post.PostCreateBy = user.Username
+    return post, nil
 }
 
 func (s *PostService) UpdatePost(id uint, updateRequest *model.UpdatePostRequest) error {
@@ -67,7 +78,20 @@ func (s *PostService) DeletePost(id uint) error {
 }
 
 func (s *PostService) GetAllPosts() ([]entity.Post, error) {
-    return repository.GetAllPosts(s.db)
+    posts, err := repository.GetAllPosts(s.db)
+    if err != nil {
+        return nil, err
+    }
+
+    for i := range posts {
+        user, err := repository.GetUserByUserId(s.db, posts[i].PostCreateBy)
+        if err != nil {
+            return nil, err
+        }
+        posts[i].PostCreateBy = user.Username
+    }
+    
+    return posts, nil
 }
 
 func (s *PostService) GetPaginatedPosts(page, limit int) (model.PaginatedResponse, error) {
@@ -81,6 +105,14 @@ func (s *PostService) GetPaginatedPosts(page, limit int) (model.PaginatedRespons
 	result := s.db.Limit(limit).Offset(offset).Find(&posts)
 	if result.Error != nil {
 		return model.PaginatedResponse{}, result.Error
+	}
+
+	for i := range posts {
+		user, err := repository.GetUserByUserId(s.db, posts[i].PostCreateBy)
+		if err != nil {
+			return model.PaginatedResponse{}, err
+		}
+		posts[i].PostCreateBy = user.Username
 	}
 
 	response := model.PaginatedResponse{
@@ -109,6 +141,14 @@ func (s *PostService) GetPaginatedPostsByUserId(page, limit int, PostCreateBy st
 	result := s.db.Where("post_create_by = ?", PostCreateBy).Limit(limit).Offset(offset).Find(&posts)
 	if result.Error != nil {
 		return model.PaginatedResponse{}, result.Error
+	}
+
+	for i := range posts {
+		user, err := repository.GetUserByUserId(s.db, posts[i].PostCreateBy)
+		if err != nil {
+			return model.PaginatedResponse{}, err
+		}
+		posts[i].PostCreateBy = user.Username
 	}
 
 	response := model.PaginatedResponse{
