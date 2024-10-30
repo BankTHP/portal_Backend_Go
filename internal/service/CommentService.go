@@ -5,7 +5,6 @@ import (
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/repository"
-
 	"gorm.io/gorm"
 )
 
@@ -32,7 +31,16 @@ func (s *CommentService) CreateComment(createRequest *model.CreateCommentRequest
 }
 
 func (s *CommentService) GetCommentByID(id uint) (*entity.Comment, error) {
-	return repository.GetCommentByID(s.db, id)
+	comment, err := repository.GetCommentByID(s.db, id)
+	if err != nil {
+		return nil, err
+	}
+	user, err := repository.GetUserByUserId(s.db, comment.CommentCreateBy)
+	if err != nil {
+		return nil, err
+	}
+	comment.CommentCreateBy = user.Username
+	return comment, nil
 }
 
 func (s *CommentService) GetCommentByPostID(id uint) ([]entity.Comment, error) {
