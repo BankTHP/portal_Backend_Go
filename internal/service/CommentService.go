@@ -5,6 +5,7 @@ import (
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/repository"
+
 	"gorm.io/gorm"
 )
 
@@ -44,7 +45,20 @@ func (s *CommentService) GetCommentByID(id uint) (*entity.Comment, error) {
 }
 
 func (s *CommentService) GetCommentByPostID(id uint) ([]entity.Comment, error) {
-	return repository.GetCommentByPostID(s.db, id)
+	comments, err := repository.GetCommentByPostID(s.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range comments {
+		user, err := repository.GetUserByUserId(s.db, comments[i].CommentCreateBy)
+		if err != nil {
+			return nil, err
+		}
+		comments[i].CommentCreateBy = user.Username
+	}
+
+	return comments, nil
 }
 
 func (s *CommentService) DeleteComment(id uint) error {
@@ -67,6 +81,14 @@ func (s *CommentService) GetPaginatedComments(page, limit, postId int) (model.Pa
 	result := s.db.Where("post_id = ?", postId).Limit(limit).Offset(offset).Find(&comments)
 	if result.Error != nil {
 		return model.PaginatedResponse{}, result.Error
+	}
+
+	for i := range comments {
+		user, err := repository.GetUserByUserId(s.db, comments[i].CommentCreateBy)
+		if err != nil {
+			return model.PaginatedResponse{}, err
+		}
+		comments[i].CommentCreateBy = user.Username
 	}
 
 	response := model.PaginatedResponse{
@@ -115,6 +137,14 @@ func (s *CommentService) GetPaginatedCommentsByUserId(page, limit int, CommentCr
 	result := s.db.Where("comment_create_by = ?", CommentCreateBy).Limit(limit).Offset(offset).Find(&comments)
 	if result.Error != nil {
 		return model.PaginatedResponse{}, result.Error
+	}
+
+	for i := range comments {
+		user, err := repository.GetUserByUserId(s.db, comments[i].CommentCreateBy)
+		if err != nil {
+			return model.PaginatedResponse{}, err
+		}
+		comments[i].CommentCreateBy = user.Username
 	}
 
 	response := model.PaginatedResponse{
