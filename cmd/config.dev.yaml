@@ -31,4 +31,4 @@ auth:
 
 keycloak:
   clientId: sso-client-api
-
+  server: http://localhost:9091/api/app/

@@ -32,11 +32,12 @@ func (h *UserHandlers) CreateUser(ctx *fiber.Ctx) error {
 
 func (h *UserHandlers) UpdateUserInfo(ctx *fiber.Ctx) error {
 	var updateUserRequest model.UpdateUserRequest
+	token := ctx.Get("Authorization")
 	if err := ctx.BodyParser(&updateUserRequest); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_INPUT", "ข้อมูลไม่ถูกต้อง"))
 	}
 
-	if err := h.userService.UpdateUserInfo(&updateUserRequest); err != nil {
+	if err := h.userService.UpdateUserInfo(&updateUserRequest, token); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("UPDATE_USER_ERROR", err.Error()))
 	}
 
