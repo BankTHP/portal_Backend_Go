@@ -29,4 +29,8 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, authMiddleware *middleware.Auth
 	userService := service.NewUserService(db)
 	userHandler := handler.NewUserHandlers(userService)
 	UserRoutes(app, userHandler, authMiddleware)
+
+	// เพิ่ม video routes
+	videoHandler := handler.NewVideoHandler("./uploads/videos")
+	VideoRoutes(app, videoHandler, authMiddleware)
 }
