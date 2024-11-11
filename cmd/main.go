@@ -6,6 +6,7 @@ import (
 	"pccth/portal-blog/config"
 	"pccth/portal-blog/routes"
 	"strconv"
+	"time"
 
 	"pccth/portal-blog/internal/handler"
 	_ "pccth/portal-blog/internal/handler"
@@ -40,6 +41,9 @@ func main() {
 				"error": err.Error(),
 			})
 		},
+		BodyLimit: 524288000, // 500MB
+		ReadTimeout: 600 * time.Second,  // 10 minutes
+		WriteTimeout: 600 * time.Second, // 10 minutes
 	})
 
 	app.Use(cors.New())
@@ -54,13 +58,13 @@ func main() {
 	address := ":" + strconv.Itoa(port)
 
 	// สร้าง upload directory ถ้ายังไม่มี
-	uploadDir := "./uploads/videos"
+	uploadDir := viper.GetString("app.upload.upload_dir")
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		log.Fatalf("ไม่สามารถสร้าง upload directory ได้: %v", err)
 	}
 
 	// เพิ่ม static route สำหรับไฟล์วิดีโอ
-	app.Static("/videos", "./uploads/videos")
+	app.Static("/videos", uploadDir)
 
 	// สร้าง video handler
 	videoHandler := handler.NewVideoHandler(uploadDir)
