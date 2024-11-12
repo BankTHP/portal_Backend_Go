@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -127,5 +128,16 @@ func (s *VideoService) ProcessVideoUpload(file *model.UploadedFile) (*model.Vide
 		Size:     fileSizeMB,
 		Duration: duration,
 	}, nil
+}
+
+func (s *VideoService) GetVideoByName(vdoName string) (*entity.Videos, error) {
+	video, err := repository.GetVideoByName(s.db, vdoName)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("ไม่พบวิดีโอที่ต้องการ")
+		}
+		return nil, fmt.Errorf("เกิดข้อผิดพลาดในการค้นหาวิดีโอ: %v", err)
+	}
+	return video, nil
 }
 

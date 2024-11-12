@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/service"
 
@@ -53,4 +54,33 @@ func (h *VideoHandler) UploadVideo(c *fiber.Ctx) error {
 	response.FullURL = "http://localhost:" + port + response.FullURL
 
 	return c.JSON(response)
+}
+
+func (h *VideoHandler) GetVideoByName(c *fiber.Ctx) error {
+	vdoName := c.Params("name")
+	if vdoName == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(model.VideoResponse{
+			Success: false,
+			Error:   "กรุณาระบุชื่อวิดีโอ",
+		})
+	}
+
+	video, err := h.videoService.GetVideoByName(vdoName)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(model.VideoResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	// สร้าง URL สำหรับเข้าถึงวิดีโอ
+	port := viper.GetString("app.port")
+	fullURL := fmt.Sprintf("http://localhost:%s/videos/%s", port, video.VdoName)
+
+	return c.JSON(model.VideoResponse{
+		Success:  true,
+		FullURL:  fullURL,
+		Duration: video.VdoDuration,
+		Size:     video.VdoSize,
+	})
 }

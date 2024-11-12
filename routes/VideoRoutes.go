@@ -18,7 +18,8 @@ func VideoRoutes(app *fiber.App, videoHandler *handler.VideoHandler, authMiddlew
 
 	app.Static("/videos", "./uploads/videos")
 
-	api := app.Group("/upload")
-	api.Post("/video", videoHandler.UploadVideo)
+	api := app.Group("/video")
+	api.Post("/upload",authMiddleware.HasRole("client_user", "client_admin"), videoHandler.UploadVideo)
+	api.Get("/getvdoByName/:name",authMiddleware.HasRole("client_user", "client_admin"), videoHandler.GetVideoByName)
 
 }

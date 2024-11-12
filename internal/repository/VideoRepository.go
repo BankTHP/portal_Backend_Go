@@ -22,3 +22,15 @@ func GetVideoByVdoId(db *gorm.DB, vdoId string) (*entity.Videos, error) {
 	}
 	return &video, nil
 }
+
+func GetVideoByName(db *gorm.DB, vdoName string) (*entity.Videos, error) {
+	var video entity.Videos
+	err := db.Where("vdo_name = ?", vdoName).First(&video).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, gorm.ErrRecordNotFound
+		}
+		return nil, err
+	}
+	return &video, nil
+}
