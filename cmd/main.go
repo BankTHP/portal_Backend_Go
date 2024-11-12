@@ -2,12 +2,10 @@
 
 import (
 	"log"
-	"os"
 	"pccth/portal-blog/config"
 	"pccth/portal-blog/routes"
 	"strconv"
 
-	"pccth/portal-blog/internal/handler"
 	_ "pccth/portal-blog/internal/handler"
 	"pccth/portal-blog/internal/middleware"
 
@@ -35,6 +33,8 @@ func main() {
 	db := config.InitDB()
 	authMiddleware := middleware.NewAuthMiddleware(config.GetPublicKey())
 	app := fiber.New(fiber.Config{
+		BodyLimit:         500 * 1024 * 1024, // 100MB
+		StreamRequestBody: true,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": err.Error(),
@@ -43,30 +43,16 @@ func main() {
 	})
 
 	app.Use(cors.New())
+
 	routes.RegisterRoutes(app, db, authMiddleware)
 
 	app.Get("/swagger/*", swagger.New(swagger.Config{
-		URL: "/swagger/doc.json",
+		URL:         "/swagger/doc.json",
 		DeepLinking: false,
 	}))
 
 	port := viper.GetInt("app.port")
 	address := ":" + strconv.Itoa(port)
-
-	// สร้าง upload directory ถ้ายังไม่มี
-	uploadDir := "./uploads/videos"
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		log.Fatalf("ไม่สามารถสร้าง upload directory ได้: %v", err)
-	}
-
-	// เพิ่ม static route สำหรับไฟล์วิดีโอ
-	app.Static("/videos", "./uploads/videos")
-
-	// สร้าง video handler
-	videoHandler := handler.NewVideoHandler(uploadDir)
-
-	// เพิ่ม route สำหรับอัปโหลดวิดีโอ
-	app.Post("/upload/video", videoHandler.UploadVideo)
 
 	if err := app.Listen(address); err != nil {
 		log.Fatalf("ไม่สามารถเริ่มเซิร์ฟเวอร์ได้: %v", err)
