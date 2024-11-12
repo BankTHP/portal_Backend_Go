@@ -59,15 +59,7 @@ func (h *VideoHandler) UploadVideo(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(model.VideoResponse{
 			Success: false,
-			Error:   "ไม่พบไฟล์วิดีโอ",
-		})
-	}
-
-	ext := filepath.Ext(file.Filename)
-	if ext != ".mp4" && ext != ".avi" && ext != ".mov" {
-		return c.Status(fiber.StatusBadRequest).JSON(model.VideoResponse{
-			Success: false,
-			Error:   "รองรับเฉพาะไฟล์ .mp4, .avi, และ .mov เท่านั้น",
+			Error:   "ไม่พบไฟล์วิดีโอ กรุณาเลือกไฟล์วิดีโอที่ต้องการอัปโหลด",
 		})
 	}
 
@@ -75,7 +67,18 @@ func (h *VideoHandler) UploadVideo(c *fiber.Ctx) error {
 	if file.Size > maxSize {
 		return c.Status(fiber.StatusBadRequest).JSON(model.VideoResponse{
 			Success: false,
-			Error:   "ขนาดไฟล์ต้องไม่เกิน 500MB",
+			Error: fmt.Sprintf("ไม่สามารถอัปโหลดได้: ขนาดไฟล์ %.2f MB เกินขนาดที่กำหนด (ไม่เกิน %.2f MB)",
+				float64(file.Size)/(1024*1024),
+				float64(maxSize)/(1024*1024)),
+		})
+	}
+
+	// ตรวจสอบนามสกุลไฟล์แบบง่าย
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if ext != ".mp4" && ext != ".mov" && ext != ".avi" && ext != ".wmv" {
+		return c.Status(fiber.StatusBadRequest).JSON(model.VideoResponse{
+			Success: false,
+			Error:   "นามสกุลไฟล์ไม่ถูกต้อง รองรับเฉพาะ: .mp4, .mov, .avi, .wmv",
 		})
 	}
 
@@ -89,17 +92,17 @@ func (h *VideoHandler) UploadVideo(c *fiber.Ctx) error {
 
 	filename := uuid.New().String() + ext
 	urlPath := filepath.Join("/videos", filename)
-	fullFilePath := filepath.Join(".", "uploads", "videos", filename)
+	fullPath := filepath.Join(h.uploadPath, filename)
 
-	err = c.SaveFile(file, fullFilePath)
-	if err != nil {
+	// Save file
+	if err := c.SaveFile(file, fullPath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(model.VideoResponse{
 			Success: false,
-			Error:   "ไม่สามารถบันทึกไฟล์ได้",
+			Error:   "เกิดข้อผิดพลาดในการอัปโหลดไฟล์: " + err.Error(),
 		})
 	}
 
-	duration, err := getVideoDuration(fullFilePath)
+	duration, err := getVideoDuration(fullPath)
 	if err != nil {
 		fmt.Printf("ไม่สามารถอ่านความยาววิดีโอได้: %v\n", err)
 		duration = "ไม่สามารถอ่านความยาววิดีโอได้"
@@ -108,7 +111,7 @@ func (h *VideoHandler) UploadVideo(c *fiber.Ctx) error {
 		if len(parts) == 3 {
 			hours := strings.TrimSpace(parts[0])
 			if hours != "00" {
-				os.Remove(fullFilePath)
+				os.Remove(fullPath)
 				return c.Status(fiber.StatusBadRequest).JSON(model.VideoResponse{
 					Success: false,
 					Error:   "วิดีโอต้องมีความยาวไม่เกิน 1 ชั่วโมง",

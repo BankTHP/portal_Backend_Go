@@ -1,6 +1,14 @@
 ﻿app:
   port: 8080
   debug: false
+  upload:
+    max_size: 524288000  # 500MB in bytes
+    max_duration: 3600   # 1 hour in seconds
+    allowed_types:
+      - .mp4
+      - .avi
+      - .mov
+    upload_dir: "./uploads/videos"
 database:
   host: localhost
   port: 5432
