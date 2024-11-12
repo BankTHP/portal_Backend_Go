@@ -7,6 +7,8 @@ type Users struct {
     GivenName  string `gorm:"type:varchar(255)" json:"given_name"`
     FamilyName string `gorm:"type:varchar(255)" json:"family_name"`
     Email      string `gorm:"type:varchar(255);uniqueIndex;not null" json:"email"`
+    UniversityName string `gorm:"type:varchar(255)" json:"universityName"`
+	RegisterDate string `gorm:"type:varchar(255)" json:"registerDate"`
 }
 
 func (Users) TableName() string {

@@ -29,6 +29,7 @@ func (s *UserService) CreateUser(createRequest *model.CreateUserRequest) error {
 		GivenName:  createRequest.GivenName,
 		FamilyName: createRequest.FamilyName,
 		Email:      createRequest.Email,
+		UniversityName: createRequest.UniversityName,
 	}
 	return repository.CreateUser(s.db, user)
 }

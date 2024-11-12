@@ -7,6 +7,8 @@ type CreateUserRequest struct {
 	GivenName  string `json:"given_name"`
 	FamilyName string `json:"family_name"`
 	Email      string `json:"email" validate:"required,email"`
+	UniversityName string `json:"universityName"`
+	RegisterDate string `json:"registerDate"`
 }
 
 type UpdateUserRequest struct {
