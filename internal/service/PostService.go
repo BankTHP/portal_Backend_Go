@@ -2,6 +2,7 @@
 
 import (
 	"errors"
+	"fmt"
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/repository"
@@ -31,6 +32,12 @@ func (s *PostService) GetPostByID(id uint) (*entity.Post, error) {
     post, err := repository.GetPostByID(s.db, id)
     if err != nil {
         return nil, err
+    }
+    
+    post.Views++
+    
+    if err := s.db.Model(&entity.Post{}).Where("id = ?", id).Update("views", post.Views).Error; err != nil {
+        return nil, fmt.Errorf("ไม่สามารถอัพเดทจำนวนการดูได้: %v", err)
     }
     
     user, err := repository.GetUserByUserId(s.db, post.PostCreateBy)
