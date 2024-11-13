@@ -34,4 +34,8 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, authMiddleware *middleware.Auth
 	videoService := service.NewVideoService(db, uploadPath)
 	videoHandler := handler.NewVideoHandler(videoService)
 	VideoRoutes(app, videoHandler, authMiddleware)
+
+	feedbackService := service.NewFeedbackService(db)
+	feedbackHandler := handler.NewFeedbackHandler(feedbackService)
+	FeedbackRoutes(app, feedbackHandler, authMiddleware)
 }
