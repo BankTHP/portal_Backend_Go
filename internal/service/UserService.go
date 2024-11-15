@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"pccth/portal-blog/internal/entity"
@@ -22,15 +23,32 @@ func NewUserService(db *gorm.DB) *UserService {
 }
 
 func (s *UserService) CreateUser(createRequest *model.CreateUserRequest) error {
+
+	existingUserByUsername, err := repository.GetUserByUsername(s.db, createRequest.Username)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	if existingUserByUsername != nil {
+		return fmt.Errorf("username already exists")
+	}
+
+	existingUser, err := repository.GetUserByEmail(s.db, createRequest.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	if existingUser != nil {
+		return fmt.Errorf("email already exists")
+	}
+
 	user := &entity.Users{
-		UserId:     createRequest.UserId,
-		Name:       createRequest.Name,
-		Username:   createRequest.Username,
-		GivenName:  createRequest.GivenName,
-		FamilyName: createRequest.FamilyName,
-		Email:      createRequest.Email,
+		UserId:         createRequest.UserId,
+		Name:           createRequest.Name,
+		Username:       createRequest.Username,
+		GivenName:      createRequest.GivenName,
+		FamilyName:     createRequest.FamilyName,
+		Email:          createRequest.Email,
 		UniversityName: createRequest.UniversityName,
-		RegisterDate: createRequest.RegisterDate,
+		RegisterDate:   createRequest.RegisterDate,
 	}
 	return repository.CreateUser(s.db, user)
 }
