@@ -148,6 +148,10 @@ func (s *PostService) DeletePost(id uint) error {
 		return errors.New("failed to delete comments")
 	}
 
+	if err := s.db.Where("post_id = ?", id).Delete(&entity.PDFs{}).Error; err != nil {
+		return errors.New("failed to delete pdfs")
+	}
+
 	if err := s.db.Delete(&post).Error; err != nil {
 		return errors.New("failed to delete post")
 	}
