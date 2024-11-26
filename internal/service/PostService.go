@@ -99,11 +99,12 @@ func (s *PostService) GetPostByID(id uint) (*model.PostResponse, error) {
 	}
 
 	Res := &model.PostResponse{
-		ID:           post.ID,
-		PostHeader:   post.PostHeader,
-		PostBody:     post.PostBody,
-		PostCreateBy: user.Username,
-		Views:        post.Views,
+		ID:             post.ID,
+		PostHeader:     post.PostHeader,
+		PostBody:       post.PostBody,
+		PostCreateBy:   user.Username,
+		PostCreateDate: post.PostCreateDate,
+		Views:          post.Views,
 	}
 
 	if err := s.db.Model(&entity.Post{}).Where("id = ?", id).Update("views", post.Views).Error; err != nil {
