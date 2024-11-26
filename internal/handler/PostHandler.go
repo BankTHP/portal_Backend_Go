@@ -27,12 +27,22 @@ func NewPostHandlers(postService *service.PostService) *PostHandlers {
 // @Failure 500 {object} map[string]interface{}
 // @Router /posts/createPost [post]
 func (c *PostHandlers) CreatePost(ctx *fiber.Ctx) error {
+	// รับ multipart form
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_FORM", "รูปแบบข้อมูลไม่ถูกต้อง"))
+	}
+
+	// แยกข้อมูล post และไฟล์
 	var createPostRequest model.CreatePostRequest
 	if err := ctx.BodyParser(&createPostRequest); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(model.NewErrorResponse("INVALID_INPUT", "ข้อมูลไม่ถูกต้อง"))
 	}
 
-	if err := c.postService.CreatePost(&createPostRequest); err != nil {
+	// ดึงไฟล์ PDF
+	files := form.File["pdf"]
+
+	if err := c.postService.CreatePost(&createPostRequest, files); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(model.NewErrorResponse("CREATE_POST_ERROR", err.Error()))
 	}
 

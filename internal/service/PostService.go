@@ -3,102 +3,174 @@
 import (
 	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"os"
 	"pccth/portal-blog/internal/entity"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/repository"
 
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
 type PostService struct {
-    db *gorm.DB
+	db *gorm.DB
 }
 
 func NewPostService(db *gorm.DB) *PostService {
-    return &PostService{db: db}
+	return &PostService{db: db}
 }
 
+func (s *PostService) CreatePost(createRequest *model.CreatePostRequest, files []*multipart.FileHeader) error {
+	post := &entity.Post{
+		PostHeader:   createRequest.PostHeader,
+		PostBody:     createRequest.PostBody,
+		PostCreateBy: createRequest.PostCreateBy,
+	}
 
-func (s *PostService) CreatePost(createRequest *model.CreatePostRequest) error {
-    post := &entity.Post{
-        PostHeader: createRequest.PostHeader,
-        PostBody:   createRequest.PostBody,
-        PostCreateBy: createRequest.PostCreateBy,
-    }
-    return repository.CreatePost(s.db, post)
+	if err := repository.CreatePost(s.db, post); err != nil {
+		return err
+	}
+
+	if len(files) == 0 {
+		return nil
+	}
+
+	for _, file := range files {
+		if err := s.SavePDF(post.ID, file); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func (s *PostService) GetPostByID(id uint) (*entity.Post, error) {
-    post, err := repository.GetPostByID(s.db, id)
-    if err != nil {
-        return nil, err
-    }
-    
-    post.Views++
-    
-    if err := s.db.Model(&entity.Post{}).Where("id = ?", id).Update("views", post.Views).Error; err != nil {
-        return nil, fmt.Errorf("ไม่สามารถอัพเดทจำนวนการดูได้: %v", err)
-    }
-    
-    user, err := repository.GetUserByUserId(s.db, post.PostCreateBy)
-    if err != nil {
-        return nil, err
-    }
-    
-    post.PostCreateBy = user.Username
-    return post, nil
+func (s *PostService) SavePDF(postID uint, file *multipart.FileHeader) error {
+	filename := file.Filename
+	uploadPath := fmt.Sprintf("uploads/pdfs/%s", filename)
+
+	port := viper.GetString("app.port")
+
+	dir := "uploads/pdfs"
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	dst, err := os.Create(uploadPath)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, src); err != nil {
+		return err
+	}
+
+	fullURL := fmt.Sprintf("http://localhost:%s/pdfs/%s", port, filename)
+
+	pdf := &entity.PDFs{
+		PostID:  postID,
+		PDFName: filename,
+		PDFSize: fmt.Sprintf("%d", file.Size),
+		PDFPath: fullURL,
+	}
+
+	return s.db.Create(pdf).Error
+}
+
+func (s *PostService) GetPostByID(id uint) (*model.PostResponse, error) {
+	post, err := repository.GetPostByID(s.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	post.Views++
+
+	Res := &model.PostResponse{
+		ID:           post.ID,
+		PostHeader:   post.PostHeader,
+		PostBody:     post.PostBody,
+		PostCreateBy: post.PostCreateBy,
+		Views:        post.Views,
+	}
+
+	if err := s.db.Model(&entity.Post{}).Where("id = ?", id).Update("views", post.Views).Error; err != nil {
+		return nil, fmt.Errorf("ไม่สามารถอัพเดทจำนวนการดูได้: %v", err)
+	}
+
+	user, err := repository.GetUserByUserId(s.db, post.PostCreateBy)
+	if err != nil {
+		return nil, err
+	}
+
+	post.PostCreateBy = user.Username
+
+	pdfs, err := repository.GetPDFsByPostID(s.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	Res.PDFs = pdfs
+
+	return Res, nil
 }
 
 func (s *PostService) UpdatePost(id uint, updateRequest *model.UpdatePostRequest) error {
-    if updateRequest.PostHeader == "" || updateRequest.PostBody == "" {
-        return errors.New("PostHeader and PostBody cannot be empty")
-    }
+	if updateRequest.PostHeader == "" || updateRequest.PostBody == "" {
+		return errors.New("PostHeader and PostBody cannot be empty")
+	}
 
-    post, err := repository.GetPostByID(s.db, id)
-    if err != nil {
-        return err
-    }
+	post, err := repository.GetPostByID(s.db, id)
+	if err != nil {
+		return err
+	}
 
+	post.PostHeader = updateRequest.PostHeader
+	post.PostBody = updateRequest.PostBody
 
-    post.PostHeader = updateRequest.PostHeader
-    post.PostBody = updateRequest.PostBody
-
-    return s.db.Save(post).Error
+	return s.db.Save(post).Error
 }
 
 func (s *PostService) DeletePost(id uint) error {
-    var post entity.Post
+	var post entity.Post
 
-    if err := s.db.Where("id = ?", id).First(&post).Error; err != nil {
-        return errors.New("post not found")
-    }
+	if err := s.db.Where("id = ?", id).First(&post).Error; err != nil {
+		return errors.New("post not found")
+	}
 
-    if err := s.db.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
-        return errors.New("failed to delete comments")
-    }
+	if err := s.db.Where("post_id = ?", id).Delete(&entity.Comment{}).Error; err != nil {
+		return errors.New("failed to delete comments")
+	}
 
-    if err := s.db.Delete(&post).Error; err != nil {
-        return errors.New("failed to delete post")
-    }
+	if err := s.db.Delete(&post).Error; err != nil {
+		return errors.New("failed to delete post")
+	}
 
-    return nil
+	return nil
 }
 
 func (s *PostService) GetAllPosts() ([]entity.Post, error) {
-    posts, err := repository.GetAllPosts(s.db)
-    if err != nil {
-        return nil, err
-    }
+	posts, err := repository.GetAllPosts(s.db)
+	if err != nil {
+		return nil, err
+	}
 
-    for i := range posts {
-        user, err := repository.GetUserByUserId(s.db, posts[i].PostCreateBy)
-        if err != nil {
-            return nil, err
-        }
-        posts[i].PostCreateBy = user.Username
-    }
-    
-    return posts, nil
+	for i := range posts {
+		user, err := repository.GetUserByUserId(s.db, posts[i].PostCreateBy)
+		if err != nil {
+			return nil, err
+		}
+		posts[i].PostCreateBy = user.Username
+	}
+
+	return posts, nil
 }
 
 func (s *PostService) GetPaginatedPosts(page, limit int) (model.PaginatedResponse, error) {
