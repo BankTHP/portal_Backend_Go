@@ -93,24 +93,22 @@ func (s *PostService) GetPostByID(id uint) (*model.PostResponse, error) {
 
 	post.Views++
 
+	user, err := repository.GetUserByUserId(s.db, post.PostCreateBy)
+	if err != nil {
+		return nil, err
+	}
+
 	Res := &model.PostResponse{
 		ID:           post.ID,
 		PostHeader:   post.PostHeader,
 		PostBody:     post.PostBody,
-		PostCreateBy: post.PostCreateBy,
+		PostCreateBy: user.Username,
 		Views:        post.Views,
 	}
 
 	if err := s.db.Model(&entity.Post{}).Where("id = ?", id).Update("views", post.Views).Error; err != nil {
 		return nil, fmt.Errorf("ไม่สามารถอัพเดทจำนวนการดูได้: %v", err)
 	}
-
-	user, err := repository.GetUserByUserId(s.db, post.PostCreateBy)
-	if err != nil {
-		return nil, err
-	}
-
-	post.PostCreateBy = user.Username
 
 	pdfs, err := repository.GetPDFsByPostID(s.db, id)
 	if err != nil {
