@@ -28,6 +28,7 @@ func (s *PostService) SavePDF(postID uint, file *multipart.FileHeader) error {
 	uploadPath := fmt.Sprintf("uploads/pdfs/%s", filename)
 
 	port := viper.GetString("app.port")
+	host := viper.GetString("app.host")
 
 	dir := "uploads/pdfs"
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -50,7 +51,7 @@ func (s *PostService) SavePDF(postID uint, file *multipart.FileHeader) error {
 		return err
 	}
 
-	fullURL := fmt.Sprintf("http://localhost:%s/pdfs/%s", port, filename)
+	fullURL := fmt.Sprintf("http://%s:%s/pdfs/%s", host, port, filename)
 
 	pdf := &entity.PDFs{
 		PostID:  postID,

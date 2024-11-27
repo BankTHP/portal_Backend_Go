@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"path/filepath"
 	"pccth/portal-blog/internal/model"
 	"pccth/portal-blog/internal/service"
 
@@ -51,7 +52,8 @@ func (h *VideoHandler) UploadVideo(c *fiber.Ctx) error {
 
 	
 	port := viper.GetString("app.port")
-	response.FullURL = "http://localhost:" + port + response.FullURL
+	host := viper.GetString("app.host")
+	response.FullURL = "http://" + host + ":" + port + filepath.ToSlash(response.FullURL)
 
 	return c.JSON(response)
 }
@@ -74,7 +76,8 @@ func (h *VideoHandler) GetVideoByName(c *fiber.Ctx) error {
 	}
 
 	port := viper.GetString("app.port")
-	fullURL := fmt.Sprintf("http://localhost:%s/videos/%s", port, video.VdoName)
+	host := viper.GetString("app.host")
+	fullURL := fmt.Sprintf("http://%s:%s/videos/%s", host,port, video.VdoName)
 
 	return c.JSON(model.VideoResponse{
 		Success:  true,

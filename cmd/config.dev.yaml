@@ -1,6 +1,7 @@
 ﻿app:
   port: 8080
   debug: false
+  host: localhost
 
 database:
   host: localhost
@@ -23,12 +24,11 @@ jwt:
     9oMPhk3mO0b/izrGQSRhjrdSWocxuw2b+eQPQblZYxKGFcJcWksgjwk5jEQfwSe
     dEF4NEQIDAQAB
     -----END PUBLIC KEY-----
-    
+
 auth:
   converter:
     resource-id: sso-client-api
     principle-attribute: preferred_username
-
 
 keycloak:
   clientId: sso-client-api
