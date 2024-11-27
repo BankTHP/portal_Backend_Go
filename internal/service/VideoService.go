@@ -57,8 +57,8 @@ func (s *VideoService) getVideoDuration(filename string) (string, error) {
 }
 
 func (s *VideoService) ProcessVideoUpload(file *model.UploadedFile) (*model.VideoResponse, error) {
-	// ตรวจสอบขนาดไฟล์
-	maxSize := int64(500 * 1024 * 1024) // 500MB
+	
+	maxSize := int64(500 * 1024 * 1024) 
 	if file.Size > maxSize {
 		return &model.VideoResponse{
 			Success: false,
@@ -68,7 +68,7 @@ func (s *VideoService) ProcessVideoUpload(file *model.UploadedFile) (*model.Vide
 		}, nil
 	}
 
-	// ตรวจสอบนามสกุลไฟล์
+	
 	ext := strings.ToLower(filepath.Ext(file.Filename))
 	if ext != ".mp4" && ext != ".mov" && ext != ".avi" && ext != ".wmv" {
 		return &model.VideoResponse{
@@ -77,16 +77,14 @@ func (s *VideoService) ProcessVideoUpload(file *model.UploadedFile) (*model.Vide
 		}, nil
 	}
 
-	// สร้างโฟลเดอร์ถ้ายังไม่มี
+	
 	if err := s.ensureDir(s.uploadPath); err != nil {
 		return nil, fmt.Errorf("ไม่สามารถสร้างโฟลเดอร์ได้: %v", err)
 	}
 
-	// สร้างชื่อไฟล์ใหม่
 	filename := uuid.New().String() + ext
 	fullPath := filepath.Join(s.uploadPath, filename)
 
-	// บันทึกไฟล์
 	if err := file.SaveFunc(fullPath); err != nil {
 		return nil, fmt.Errorf("เกิดข้อผิดพลาดในการบันทึกไฟล์: %v", err)
 	}
@@ -110,7 +108,6 @@ func (s *VideoService) ProcessVideoUpload(file *model.UploadedFile) (*model.Vide
 	fileSizeMB := fmt.Sprintf("%.2f MB", float64(file.Size)/1024/1024)
 	urlPath := filepath.Join("/videos", filename)
 
-	// บันทึกข้อมูลลงฐานข้อมูล
 	video := &entity.Videos{
 		VdoName:     filename,
 		VdoSize:     fileSizeMB,

@@ -10,8 +10,8 @@ import (
 func PostRoutes(app *fiber.App, postHandler *handler.PostHandlers, authMiddleware *middleware.AuthMiddleware) {
 
 	api := app.Group("/posts")
-	api.Post("/createPost",	 authMiddleware.HasRole("client_user", "client_admin"), postHandler.CreatePost)
-	api.Get("/getPostById/:id", authMiddleware.HasRole("client_user", "client_admin"), postHandler.GetPostByID)
+	api.Post("/createPost",	authMiddleware.HasRole("client_user", "client_admin"),  postHandler.CreatePost)
+	api.Get("/getPostById/:id",authMiddleware.HasRole("client_user", "client_admin"), postHandler.GetPostByID)
 	api.Put("/updatePost/:id", authMiddleware.HasRole("client_user", "client_admin"), postHandler.UpdatePost)
 	api.Delete("/deletePost/:id", authMiddleware.HasRole("client_user", "client_admin"), postHandler.DeletePost)
 	api.Get("/getAllPosts", authMiddleware.HasRole("client_user", "client_admin"), postHandler.GetAllPosts)

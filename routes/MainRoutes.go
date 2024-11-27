@@ -39,6 +39,7 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, authMiddleware *middleware.Auth
 	feedbackHandler := handler.NewFeedbackHandler(feedbackService)
 	FeedbackRoutes(app, feedbackHandler, authMiddleware)
 
+	
 	uploadPDFPath := "./uploads/pdfs"
 	pdfService := service.NewPDFService(db, uploadPDFPath)
 	pdfHandler := handler.NewPDFHandler(pdfService)

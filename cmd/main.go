@@ -33,7 +33,7 @@ func main() {
 	db := config.InitDB()
 	authMiddleware := middleware.NewAuthMiddleware(config.GetPublicKey())
 	app := fiber.New(fiber.Config{
-		BodyLimit:         500 * 1024 * 1024, // 100MB
+		BodyLimit:         500 * 1024 * 1024,
 		StreamRequestBody: true,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
